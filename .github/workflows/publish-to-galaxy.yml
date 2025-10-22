@@ -62,16 +62,16 @@ jobs:
       - name: Test collection locally
         run: |
           # Install the built collection
-          ansible-galaxy collection install robertdebock-process-*.tar.gz --force
+          ansible-galaxy collection install robertdebock-system-*.tar.gz --force
           
           # Run basic tests
-          ansible localhost -m robertdebock.process.process -a "command=echo 'Test successful' background=false" --connection=local
+          ansible localhost -m robertdebock.system.process -a "command=echo 'Test successful' background=false" --connection=local
 
       - name: Publish to Galaxy
         if: startsWith(github.ref, 'refs/tags/')
         run: |
           echo "Publishing collection version ${{ steps.version.outputs.version }} to Galaxy"
-          ansible-galaxy collection publish robertdebock-process-*.tar.gz
+          ansible-galaxy collection publish robertdebock-system-*.tar.gz
         env:
           GALAXY_API_KEY: ${{ secrets.GALAXY_API_KEY }}
 
@@ -79,7 +79,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: collection-build-${{ steps.version.outputs.tag }}
-          path: robertdebock-process-*.tar.gz
+          path: robertdebock-system-*.tar.gz
 
       - name: Create GitHub Release
         if: startsWith(github.ref, 'refs/tags/')
@@ -94,19 +94,19 @@ jobs:
             
             ### Installation
             ```bash
-            ansible-galaxy collection install robertdebock.process
+            ansible-galaxy collection install robertdebock.system
             ```
             
             ### Usage
             ```yaml
             - name: Start a process
-              robertdebock.process.process:
+              robertdebock.system.process:
                 command: nginx
                 state: present
                 background: true
             ```
           draft: false
           prerelease: false
-          files: robertdebock-process-*.tar.gz
+          files: robertdebock-system-*.tar.gz
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

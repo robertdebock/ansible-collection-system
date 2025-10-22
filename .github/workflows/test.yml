@@ -46,10 +46,10 @@ jobs:
       - name: Test collection installation
         run: |
           # Install the built collection
-          ansible-galaxy collection install robertdebock-process-*.tar.gz --force
+          ansible-galaxy collection install robertdebock-system-*.tar.gz --force
           
           # Verify collection is installed
-          ansible-galaxy collection list robertdebock.process
+          ansible-galaxy collection list robertdebock.system
 
 
       - name: Test with Ansible playbook
@@ -62,20 +62,20 @@ jobs:
             connection: local
             tasks:
               - name: Test one-shot command
-                robertdebock.process.process:
+                robertdebock.system.process:
                   command: echo "GitHub Action test successful"
                   background: false
                 register: result
                 
               - name: Test background process
-                robertdebock.process.process:
+                robertdebock.system.process:
                   command: sleep 5
                   background: true
                   pid_file: /tmp/test.pid
                 register: bg_result
                 
               - name: Stop background process
-                robertdebock.process.process:
+                robertdebock.system.process:
                   state: absent
                   pid_file: /tmp/test.pid
                 register: stop_result

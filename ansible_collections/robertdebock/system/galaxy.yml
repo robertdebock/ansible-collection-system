@@ -1,6 +1,6 @@
 ---
 namespace: robertdebock
-name: process
+name: system
 version: 1.0.0
 readme: README.md
 authors:
@@ -12,7 +12,7 @@ tags:
   - system
   - management
   - linux
-repository: https://github.com/robertdebock/ansible.module.process
-documentation: https://github.com/robertdebock/ansible.module.process
-homepage: https://github.com/robertdebock/ansible.module.process
-issues: https://github.com/robertdebock/ansible.module.process/issues 
+repository: https://github.com/robertdebock/ansible-collection-system
+documentation: https://github.com/robertdebock/ansible-collection-system
+homepage: https://github.com/robertdebock/ansible-collection-system
+issues: https://github.com/robertdebock/ansible-collection-system/issues 
