@@ -43,8 +43,8 @@ jobs:
       - name: Update collection version
         if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/')
         run: |
-          # Extract version from tag (remove 'v' prefix)
-          VERSION=${GITHUB_REF#refs/tags/v}
+          # Extract version from tag (semver format: 1.0.0)
+          VERSION=${GITHUB_REF#refs/tags/}
           echo "Updating collection version to $VERSION"
           
           # Update galaxy.yml version
