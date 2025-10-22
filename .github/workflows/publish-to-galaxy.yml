@@ -1,0 +1,111 @@
+---
+name: Publish to Ansible Galaxy
+
+on:
+  push:
+    tags:
+      - '*'
+  workflow_dispatch:
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'
+
+      - name: Install Ansible
+        run: |
+          pip install ansible-core
+          ansible-galaxy collection install community.general
+
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt
+
+      - name: Extract version from tag
+        id: version
+        run: |
+          if [[ $GITHUB_REF == refs/tags/* ]]; then
+            VERSION=${GITHUB_REF#refs/tags/}
+            echo "version=${VERSION}" >> $GITHUB_OUTPUT
+            echo "tag=${VERSION}" >> $GITHUB_OUTPUT
+          else
+            echo "version=dev" >> $GITHUB_OUTPUT
+            echo "tag=dev" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Update collection version
+        if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/')
+        run: |
+          # Extract version from tag (remove 'v' prefix)
+          VERSION=${GITHUB_REF#refs/tags/v}
+          echo "Updating collection version to $VERSION"
+          
+          # Update galaxy.yml version
+          sed -i "s/version: .*/version: $VERSION/" ansible_collections/robertdebock/system/galaxy.yml
+          
+          # Update meta/main.yml version if it exists
+          if [ -f "ansible_collections/robertdebock/system/meta/main.yml" ]; then
+            # This is handled by galaxy.yml, but we can add version info if needed
+            echo "Collection version updated to $VERSION"
+
+      - name: Build collection
+        run: |
+          ansible-galaxy collection build ansible_collections/robertdebock/system --output-path .
+
+      - name: Test collection locally
+        run: |
+          # Install the built collection
+          ansible-galaxy collection install robertdebock-process-*.tar.gz --force
+          
+          # Run basic tests
+          ansible localhost -m robertdebock.process.process -a "command=echo 'Test successful' background=false" --connection=local
+
+      - name: Publish to Galaxy
+        if: startsWith(github.ref, 'refs/tags/')
+        run: |
+          echo "Publishing collection version ${{ steps.version.outputs.version }} to Galaxy"
+          ansible-galaxy collection publish robertdebock-process-*.tar.gz
+        env:
+          GALAXY_API_KEY: ${{ secrets.GALAXY_API_KEY }}
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: collection-build-${{ steps.version.outputs.tag }}
+          path: robertdebock-process-*.tar.gz
+
+      - name: Create GitHub Release
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.ref_name }}
+          release_name: Release ${{ github.ref_name }}
+          body: |
+            ## Ansible Process Module ${{ github.ref_name }}
+            
+            This release includes the process module for managing Linux processes.
+            
+            ### Installation
+            ```bash
+            ansible-galaxy collection install robertdebock.process
+            ```
+            
+            ### Usage
+            ```yaml
+            - name: Start a process
+              robertdebock.process.process:
+                command: nginx
+                state: present
+                background: true
+            ```
+          draft: false
+          prerelease: false

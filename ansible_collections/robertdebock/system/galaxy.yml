@@ -1,0 +1,18 @@
+---
+namespace: robertdebock
+name: process
+version: 1.0.0
+readme: README.md
+authors:
+  - "Robert de Bock (@robertdebock)"
+description: Ansible module for process management
+license: GPL-3.0-or-later
+tags:
+  - process
+  - system
+  - management
+  - linux
+repository: https://github.com/robertdebock/ansible.module.process
+documentation: https://github.com/robertdebock/ansible.module.process
+homepage: https://github.com/robertdebock/ansible.module.process
+issues: https://github.com/robertdebock/ansible.module.process/issues 

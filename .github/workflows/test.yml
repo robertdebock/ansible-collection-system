@@ -1,0 +1,110 @@
+---
+name: Test Collection
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version:
+          - '3.8'
+          - '3.9'
+          - '3.10'
+          - '3.11'
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install Ansible
+        run: |
+          pip install ansible-core
+          ansible-galaxy collection install community.general
+
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt
+
+      - name: Build collection
+        run: |
+          ansible-galaxy collection build ansible_collections/robertdebock/system --output-path .
+
+      - name: Test collection installation
+        run: |
+          # Install the built collection
+          ansible-galaxy collection install robertdebock-process-*.tar.gz --force
+          
+          # Verify collection is installed
+          ansible-galaxy collection list robertdebock.process
+
+      - name: Run function tests
+        run: |
+          cd tests
+          python3 test-functions.py
+
+      - name: Run module tests
+        run: |
+          cd tests
+          python3 test-final.py
+
+      - name: Test with Ansible playbook
+        run: |
+          # Create a simple test playbook
+          cat > test-workflow.yml << 'EOF'
+          ---
+          - name: Test process module
+            hosts: localhost
+            connection: local
+            tasks:
+              - name: Test one-shot command
+                robertdebock.process.process:
+                  command: echo "GitHub Action test successful"
+                  background: false
+                register: result
+                
+              - name: Test background process
+                robertdebock.process.process:
+                  command: sleep 5
+                  background: true
+                  pid_file: /tmp/test.pid
+                register: bg_result
+                
+              - name: Stop background process
+                robertdebock.process.process:
+                  state: absent
+                  pid_file: /tmp/test.pid
+                register: stop_result
+                
+              - name: Display results
+                debug:
+                  msg: "All tests passed successfully!"
+          EOF
+          
+          # Run the test playbook
+          ansible-playbook test-workflow.yml
+          
+          # Clean up
+          rm -f test-workflow.yml /tmp/test.pid
+
+      - name: Upload test artifacts
+        if: failure()
+        uses: actions/upload-artifact@v3
+        with:
+          name: test-failure-logs-${{ matrix.python-version }}
+          path: |
+            tests/
+            *.log
