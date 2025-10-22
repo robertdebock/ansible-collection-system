@@ -76,19 +76,17 @@ jobs:
           GALAXY_API_KEY: ${{ secrets.GALAXY_API_KEY }}
 
       - name: Upload build artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: collection-build-${{ steps.version.outputs.tag }}
           path: robertdebock-process-*.tar.gz
 
       - name: Create GitHub Release
         if: startsWith(github.ref, 'refs/tags/')
-        uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ github.ref_name }}
-          release_name: Release ${{ github.ref_name }}
+          name: Release ${{ github.ref_name }}
           body: |
             ## Ansible Process Module ${{ github.ref_name }}
             
@@ -109,3 +107,6 @@ jobs:
             ```
           draft: false
           prerelease: false
+          files: robertdebock-process-*.tar.gz
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
