@@ -54,6 +54,7 @@ jobs:
           if [ -f "ansible_collections/robertdebock/system/meta/main.yml" ]; then
             # This is handled by galaxy.yml, but we can add version info if needed
             echo "Collection version updated to $VERSION"
+          fi
 
       - name: Build collection
         run: |
