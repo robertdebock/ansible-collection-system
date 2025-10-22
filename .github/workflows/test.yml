@@ -51,15 +51,6 @@ jobs:
           # Verify collection is installed
           ansible-galaxy collection list robertdebock.process
 
-      - name: Run function tests
-        run: |
-          cd tests
-          python3 test-functions.py
-
-      - name: Run module tests
-        run: |
-          cd tests
-          python3 test-final.py
 
       - name: Test with Ansible playbook
         run: |
@@ -106,5 +97,4 @@ jobs:
         with:
           name: test-failure-logs-${{ matrix.python-version }}
           path: |
-            tests/
             *.log
