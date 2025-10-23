@@ -60,14 +60,11 @@ jobs:
         run: |
           ansible-galaxy collection build ansible_collections/robertdebock/system --output-path .
 
-
       - name: Publish to Galaxy
         if: startsWith(github.ref, 'refs/tags/')
         run: |
           echo "Publishing collection version ${{ steps.version.outputs.version }} to Galaxy"
-          ansible-galaxy collection publish robertdebock-system-*.tar.gz
-        env:
-          GALAXY_API_KEY: ${{ secrets.GALAXY_API_KEY }}
+          ansible-galaxy collection publish robertdebock-system-*.tar.gz --token ${{ secrets.GALAXY_API_KEY }}
 
       - name: Upload build artifacts
         uses: actions/upload-artifact@v4
