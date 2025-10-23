@@ -5,7 +5,7 @@ version: 1.0.2
 readme: README.md
 authors:
   - "Robert de Bock (@robertdebock)"
-description: Ansible module for process management
+description: Ansible module for system management
 license:
   - Apache-2.0
 tags:
@@ -15,5 +15,5 @@ tags:
   - linux
 repository: https://github.com/robertdebock/ansible-collection-system
 documentation: https://github.com/robertdebock/ansible-collection-system
-homepage: https://github.com/robertdebock/ansible-collection-system
+homepage: https://robertdebock.nl/
 issues: https://github.com/robertdebock/ansible-collection-system/issues 
