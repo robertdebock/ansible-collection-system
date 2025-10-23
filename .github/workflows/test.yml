@@ -20,6 +20,8 @@ jobs:
           - '3.9'
           - '3.10'
           - '3.11'
+    outputs:
+      all-tests-passed: ${{ steps.test-results.outputs.passed }}
     
     steps:
       - name: Checkout repository
@@ -116,6 +118,10 @@ jobs:
           # Clean up
           rm -f test-workflow.yml /tmp/test.pid
 
+      - name: Set test results
+        id: test-results
+        run: echo "passed=true" >> $GITHUB_OUTPUT
+
       - name: Upload test artifacts
         if: failure()
         uses: actions/upload-artifact@v4
@@ -123,3 +129,29 @@ jobs:
           name: test-failure-logs-${{ matrix.python-version }}
           path: |
             *.log
+
+  release:
+    needs: test
+    if: github.event_name == 'push' && github.ref == 'refs/heads/master'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'
+
+      - name: Install Ansible
+        run: |
+          pip install ansible-core
+
+      - name: Build collection
+        run: |
+          ansible-galaxy collection build ansible_collections/robertdebock/system --output-path .
+
+      - name: Publish to Galaxy
+        run: |
+          echo "Publishing collection to Galaxy"
+          ansible-galaxy collection publish robertdebock-system-*.tar.gz --token ${{ secrets.GALAXY_API_KEY }}
