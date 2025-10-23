@@ -15,48 +15,40 @@ This Ansible module allows you to manage processes on Linux systems. It supports
 
 - Python 3.6 or higher
 - Ansible 2.9 or higher
-
-## Installation
-
-Place the `process.py` file in your Ansible library path, typically:
-
-   ```bash
-   mkdir -p ~/.ansible/plugins/modules/
-   cp process.py ~/.ansible/plugins/modules/
-   ```
+- psutil >= 5.0.0
 
 ## Usage
 
 ### Start a long-running process
 
-   ```yaml
-   - name: Start nginx
-     process:
-       command: nginx
-       state: present
-       background: true
-       pid_file: /var/run/nginx.pid
-   ```
+```yaml
+- name: Start nginx
+   process:
+      command: nginx
+      state: present
+      background: true
+      pid_file: /var/run/nginx.pid
+```
 
 ### Run a one-shot command
 
-   ```yaml
-   - name: Run backup script
-     process:
-       command: /usr/local/bin/backup.sh
-       state: present
-       background: false
-       timeout: 300
-   ```
+```yaml
+- name: Run backup script
+   process:
+      command: /usr/local/bin/backup.sh
+      state: present
+      background: false
+      timeout: 300
+```
 
 ### Stop a process
 
-   ```yaml
-   - name: Stop nginx
-     process:
-       state: absent
-       pid_file: /var/run/nginx.pid
-   ```
+```yaml
+- name: Stop nginx
+   process:
+      state: absent
+      pid_file: /var/run/nginx.pid
+```
 
 ## Parameters
 
@@ -64,7 +56,7 @@ Place the `process.py` file in your Ansible library path, typically:
 |-----------|----------|---------|---------|----------|
 | command | yes | | | The command to execute |
 | state | no | present | present, absent | Whether the process should be running or stopped |
-| background | no | false | | Whether the process should run in the background |
+| background | no | false | true, false| Whether the process should run in the background |
 | timeout | no | 300 | | Timeout in seconds for one-shot processes |
 | pid_file | no | | | Path to store the PID for long-running processes |
 | working_dir | no | | | Working directory for the process |
@@ -83,8 +75,8 @@ Place the `process.py` file in your Ansible library path, typically:
 
 ## License
 
-GNU General Public License v3.0 or later
+Apache-2.0
 
 ## Author
 
-Robert de Bock (@robertdebock)
+Robert de Bock (https://robertdebock.nl)
