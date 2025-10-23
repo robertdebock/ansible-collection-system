@@ -1,0 +1,50 @@
+---
+- name: Test collection build and validation
+  hosts: localhost
+  gather_facts: false
+  tasks:
+    - name: Install ansible-galaxy
+      ansible.builtin.pip:
+        name: ansible-core
+        state: present
+
+    - name: Install psutil dependency
+      ansible.builtin.pip:
+        name: psutil>=5.0.0
+        state: present
+
+    - name: Build collection
+      ansible.builtin.command:
+        cmd: ansible-galaxy collection build ansible_collections/robertdebock/system
+        chdir: /Users/robertdb/Documents/github.com/robertdebock/ansible.module.process
+      changed_when: true
+      register: build_result
+
+    - name: Display build result
+      ansible.builtin.debug:
+        var: build_result
+
+    - name: Validate collection
+      ansible.builtin.command:
+        cmd: ansible-galaxy collection verify robertdebock-system-1.0.0.tar.gz
+      changed_when: false
+      register: verify_result
+
+    - name: Display verify result
+      ansible.builtin.debug:
+        var: verify_result
+
+    - name: Install collection locally
+      ansible.builtin.command:
+        cmd: ansible-galaxy collection install robertdebock-system-1.0.0.tar.gz --force
+      changed_when: true
+
+    - name: Test installed collection
+      ansible.builtin.command:
+        cmd: ansible-playbook test-local.yml --tags one_shot
+      changed_when: true
+      register: test_result
+
+    - name: Display test result
+      ansible.builtin.debug:
+        var: test_result

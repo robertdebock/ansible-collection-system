@@ -1,12 +1,13 @@
 ---
 namespace: robertdebock
 name: system
-version: 1.0.1
+version: 1.0.2
 readme: README.md
 authors:
   - "Robert de Bock (@robertdebock)"
 description: Ansible module for process management
-license: GPL-3.0-or-later
+license:
+  - Apache-2.0
 tags:
   - process
   - system
