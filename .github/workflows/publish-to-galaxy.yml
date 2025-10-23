@@ -60,34 +60,6 @@ jobs:
         run: |
           ansible-galaxy collection build ansible_collections/robertdebock/system --output-path .
 
-      - name: Test collection locally
-        run: |
-          # Install the built collection
-          ansible-galaxy collection install robertdebock-system-*.tar.gz --force
-          
-          # Create a simple test playbook
-          cat > test-collection.yml << 'EOF'
-          ---
-          - name: Test process module
-            hosts: localhost
-            connection: local
-            tasks:
-              - name: Test one-shot command
-                robertdebock.system.process:
-                  command: echo "Collection test successful"
-                  background: false
-                register: result
-                
-              - name: Display result
-                debug:
-                  msg: "Test completed successfully"
-          EOF
-          
-          # Run the test playbook
-          ansible-playbook test-collection.yml
-          
-          # Clean up
-          rm -f test-collection.yml
 
       - name: Publish to Galaxy
         if: startsWith(github.ref, 'refs/tags/')

@@ -51,6 +51,31 @@ jobs:
           # Verify collection is installed
           ansible-galaxy collection list robertdebock.system
 
+      - name: Test collection locally
+        run: |
+          # Create a simple test playbook for basic functionality
+          cat > test-collection.yml << 'EOF'
+          ---
+          - name: Test process module
+            hosts: localhost
+            connection: local
+            tasks:
+              - name: Test one-shot command
+                robertdebock.system.process:
+                  command: echo "Collection test successful"
+                  background: false
+                register: result
+                
+              - name: Display result
+                debug:
+                  msg: "Basic collection test completed successfully"
+          EOF
+          
+          # Run the test playbook
+          ansible-playbook test-collection.yml
+          
+          # Clean up
+          rm -f test-collection.yml
 
       - name: Test with Ansible playbook
         run: |
